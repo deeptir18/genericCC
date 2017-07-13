@@ -84,7 +84,7 @@ public:
   }
 
   //duration in milliseconds
-  void send_data ( double flow_size, bool byte_switched, int flow_id, int src_id );
+  void send_data ( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id );
 
   void listen_for_data ( );
 };
@@ -155,7 +155,7 @@ void CTCP<T>::tcp_handshake() {
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
 template<class T>
-void CTCP<T>::send_data( double flow_size, bool byte_switched, int flow_id, int src_id ){
+void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id ){
   tcp_handshake();
 
   TCPHeader header, ack_header;
