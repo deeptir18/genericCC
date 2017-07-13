@@ -80,7 +80,7 @@ public:
   }
 
   //duration in milliseconds
-  void send_data ( double flow_size, bool byte_switched, int flow_id, int src_id );
+  void send_data ( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id );
 
   void listen_for_data ( );
 };
@@ -143,7 +143,7 @@ void CTCP<T>::tcp_handshake() {
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
 template<class T>
-void CTCP<T>::send_data( double flow_size, bool byte_switched, int flow_id, int src_id ){
+void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id ){
   tcp_handshake();
 
   TCPHeader header, ack_header;
@@ -188,9 +188,9 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int flow_id, int 
     while ((seq_num < _largest_ack + 1 + congctrl.get_the_window()) &&
            (_last_send_time + congctrl.get_intersend_time() <= cur_time) &&
            (byte_switched?(num_packets_transmitted*data_size):cur_time) < flow_size ) {
-      header.seq_num = int32_t(seq_num);
-      header.flow_id = int32_t(flow_id);
-      header.src_id = int32_t(src_id);
+      header.seq_num = seq_num;
+      header.flow_id = flow_id;
+      header.src_id = src_id;
       header.sender_timestamp = cur_time;
       header.receiver_timestamp = 0;
       
@@ -226,8 +226,8 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int flow_id, int 
     memcpy(&ack_header, buf, sizeof(TCPHeader));
     ack_header.seq_num++; // because the receiver doesn't do that for us yet
     
-    if (ack_header.src_id != int32_t(src_id) || ack_header.flow_id != int32_t(flow_id)){
-      if(ack_header.src_id != int32_t(src_id) ){
+    if (ack_header.src_id != src_id || ack_header.flow_id != flow_id){
+      if(ack_header.src_id != src_id ){
         std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
       }
       continue;

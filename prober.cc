@@ -12,7 +12,7 @@
 // the lower the value, the slower the exponential averaging
 #define LINK_RATE_MEASUREMENT_ALPHA (1)
 
-const int num_packets_per_link_rate_measurement = NUM_PACKETS_PER_LINK_RATE_MEASUREMENT;
+const int32_t num_packets_per_link_rate_measurement = NUM_PACKETS_PER_LINK_RATE_MEASUREMENT;
 const double link_rate_measurement_alpha = LINK_RATE_MEASUREMENT_ALPHA;
 
 using namespace std;
@@ -40,7 +40,7 @@ int main( int argc, char* argv[] ) {
 	UDPSocket socket;
 	socket.bindsocket( dstaddr, dstport );
 
-	const int src_id = 42; // some arbitrary number
+	const int32_t src_id = 42; // some arbitrary number
 	const int packet_size = sizeof(TCPHeader)+2;
 	TCPHeader header, ack_header;
 
@@ -57,7 +57,7 @@ int main( int argc, char* argv[] ) {
 	// for flow control
 	double cur_time = 0;
 	// note: this is not the sequence number that is actually transmitted. packets are transmitted in groups of num_packets_per_link_rate_measurement (say n) numbered as seq_num*n, seq_num*n + 1, ..., seq_num*n + (n-1)
-	int seq_num = 0;
+	int32_t seq_num = 0;
 
 	// variables for link rate measurement
 	int cur_ack_group_number = -1;
@@ -71,10 +71,10 @@ int main( int argc, char* argv[] ) {
 	while ( true ) {
 		cur_time = current_timestamp( start_time_point );
 		
-		for (  int i = 0;i < num_packets_per_link_rate_measurement; i++ ) {
-			header.seq_num = int32_t(seq_num * num_packets_per_link_rate_measurement + i);
+		for (  int32_t i = 0;i < num_packets_per_link_rate_measurement; i++ ) {
+			header.seq_num = seq_num * num_packets_per_link_rate_measurement + i;
 			header.flow_id = 0;
-			header.src_id = int32_t(src_id);
+			header.src_id = src_id;
 			header.sender_timestamp = cur_time;
 			header.receiver_timestamp = 0;
 
@@ -98,8 +98,8 @@ int main( int argc, char* argv[] ) {
 			memcpy(&ack_header, buf, sizeof(TCPHeader));
 			ack_header.seq_num ++; // because the receiver doesn't do that for us yet
 
-			if ( ack_header.src_id != int32_t(src_id) || ack_header.flow_id != 0 ) {
-				if( ack_header.src_id != int32_t(src_id) ) {
+			if ( ack_header.src_id != src_id || ack_header.flow_id != 0 ) {
+				if( ack_header.src_id != src_id ) {
 					std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
 				}
 				continue;
