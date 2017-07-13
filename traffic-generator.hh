@@ -91,7 +91,7 @@ void TrafficGenerator<T>::send_data(int seed, int id) {
 		}
 
 		bool byte_switched = (_switch_type == SwitchType::BYTE_SWITCHED);
-		_ctcp.send_data(on_duration, byte_switched, flow_id, id);
+		_ctcp.send_data(on_duration, byte_switched, int32_t(flow_id), int32_t(id));
 
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(unsigned(off_duration)));
 
