@@ -1,7 +1,7 @@
 struct TCPHeader{
-	int seq_num;
-	int flow_id;
-	int src_id;
+	int32_t seq_num;
+	int32_t flow_id;
+	int32_t src_id;
 	double sender_timestamp;
 	double receiver_timestamp;
 };
