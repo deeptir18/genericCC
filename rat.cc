@@ -26,7 +26,7 @@ void Rat::packets_received( const vector< Packet > & packets, const double link_
   assert( packets.size() );
   for ( auto &packet : packets ){
     _largest_ack = max( packet.seq_num, _largest_ack );
-    flow_id = packet.flow_id;
+    flow_id = int(packet.flow_id);
   }
   assert( flow_id != -1 );
 

@@ -72,9 +72,9 @@ int main( int argc, char* argv[] ) {
 		cur_time = current_timestamp( start_time_point );
 		
 		for (  int i = 0;i < num_packets_per_link_rate_measurement; i++ ) {
-			header.seq_num = seq_num * num_packets_per_link_rate_measurement + i;
+			header.seq_num = int32_t(seq_num * num_packets_per_link_rate_measurement + i);
 			header.flow_id = 0;
-			header.src_id = src_id;
+			header.src_id = int32_t(src_id);
 			header.sender_timestamp = cur_time;
 			header.receiver_timestamp = 0;
 
@@ -98,8 +98,8 @@ int main( int argc, char* argv[] ) {
 			memcpy(&ack_header, buf, sizeof(TCPHeader));
 			ack_header.seq_num ++; // because the receiver doesn't do that for us yet
 
-			if ( ack_header.src_id != src_id || ack_header.flow_id != 0 ) {
-				if( ack_header.src_id != src_id ) {
+			if ( ack_header.src_id != int32_t(src_id) || ack_header.flow_id != 0 ) {
+				if( ack_header.src_id != int32_t(src_id) ) {
 					std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
 				}
 				continue;
