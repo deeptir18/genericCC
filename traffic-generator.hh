@@ -90,10 +90,10 @@ void TrafficGenerator<T>::send_data(int seed, int id) {
 			on_duration = _traffic_params._on_off._mean_on_unit;
 		}
 
-		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(unsigned(off_duration)));
-
 		bool byte_switched = (_switch_type == SwitchType::BYTE_SWITCHED);
 		_ctcp.send_data(on_duration, byte_switched, flow_id, id);
+
+		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(unsigned(off_duration)));
 
 		++ flow_id;
 		std::cout<<"Sender: "<<id<<", Flow: "<<flow_id<<". Transmitted for "<<on_duration<<(byte_switched?" bytes.":" ms.")<<endl<<std::flush;
