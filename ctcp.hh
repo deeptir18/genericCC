@@ -298,6 +298,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     
     _largest_ack = max(_largest_ack, ack_header.seq_num);
   }
+	socket.senddata( "FIN", 3, NULL );
   
   cur_time = current_timestamp( start_time_point );
   
