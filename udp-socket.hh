@@ -15,13 +15,15 @@ private:
 
 	std::string ipaddr;
 	int port;
+	int srcport;
 
 	bool bound;
 public:
-	UDPSocket() : udp_socket(-1), ipaddr(), port(), bound(false) {
+	UDPSocket() : udp_socket(-1), ipaddr(), port(), srcport(), bound(false) {
 		udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 	}
 
+	int bindsocket(std::string ipaddr, int port, int srcport);
 	int bindsocket(std::string ipaddr, int port);
 	int bindsocket(int port);
 	ssize_t senddata(const char* data, ssize_t size, SockAddress *s_dest_addr);
