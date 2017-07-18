@@ -20,6 +20,7 @@ int main( int argc, char *argv[] ) {
 
 	string serverip = "";
 	int serverport=8888;
+	int sourceport=2145;
 	int offduration=5000, onduration=5000;
 	string traffic_params = "";
 	// for MarkovianCC
@@ -62,6 +63,8 @@ int main( int argc, char *argv[] ) {
 			serverip = arg.substr( 9 );
 		else if( arg.substr( 0, 11 ) == "serverport=" )
 			serverport = atoi( arg.substr( 11 ).c_str() );
+		else if( arg.substr( 0, 11 ) == "sourceport=" )
+			sourceport = atoi( arg.substr( 11 ).c_str() );
 		else if( arg.substr( 0, 12 ) == "offduration=" )
 			offduration	= atoi( arg.substr( 12 ).c_str() );
 		else if( arg.substr( 0, 11 ) == "onduration=" )
@@ -101,7 +104,7 @@ int main( int argc, char *argv[] ) {
 	}
 
 	if ( serverip == "" ) {
-		fprintf( stderr, "Usage: sender serverip=(ipaddr) [if=(ratname)] [offduration=(time in ms)] [onduration=(time in ms)] [cctype=remy|kernel|tcp|markovian] [delta_conf=(for MarkovianCC)] [traffic_params=[exponential|deterministic],[byte_switched],[num_cycles=]] [linkrate=(packets/sec)] [linklog=filename] [serverport=(port)]\n");
+		fprintf( stderr, "Usage: sender serverip=(ipaddr) [if=(ratname)] [offduration=(time in ms)] [onduration=(time in ms)] [cctype=remy|kernel|tcp|markovian] [delta_conf=(for MarkovianCC)] [traffic_params=[exponential|deterministic],[byte_switched],[num_cycles=]] [linkrate=(packets/sec)] [linklog=filename] [serverport=(port)] [sourceport=(port)]\n");
 		exit(1);
 	}
 
@@ -113,14 +116,14 @@ int main( int argc, char *argv[] ) {
 	if( cctype == CCType::REMYCC) {
 		fprintf( stdout, "Using RemyCC.\n" );
 		RemyCC congctrl( whiskers );
-		CTCP< RemyCC > connection( congctrl, serverip, serverport, train_length );
+		CTCP< RemyCC > connection( congctrl, serverip, serverport, sourceport, train_length );
 		TrafficGenerator<CTCP<RemyCC>> traffic_generator( connection, onduration, offduration, traffic_params );
 		traffic_generator.spawn_senders( 1 );
 	}
 	else if( cctype == CCType::TCPCC ) {
 		fprintf( stdout, "Using UDT's TCP CC.\n" );
 		DefaultCC congctrl;
-		CTCP< DefaultCC > connection( congctrl, serverip, serverport, train_length );
+		CTCP< DefaultCC > connection( congctrl, serverip, serverport, sourceport, train_length );
 		TrafficGenerator< CTCP< DefaultCC > > traffic_generator( connection, onduration, offduration, traffic_params );
 		traffic_generator.spawn_senders( 1 );
 	}
@@ -134,20 +137,24 @@ int main( int argc, char *argv[] ) {
 		fprintf( stdout, "Using PCC.\n" );
 		fprintf( stderr, "PCC not supported.\n" );
 		assert( cctype != CCType::PCC );
-		//PCC_TCP connection( serverip, serverport );
+		//PCC_TCP connection( serverip, serverport, sourceport );
 		//TrafficGenerator< PCC_TCP > traffic_generator( connection, onduration, offduration, traffic_params );
 		//traffic_generator.spawn_senders( 1 );
 	}
 	else if ( cctype == CCType::NASHCC ) {
 		fprintf ( stderr, "NashCC Deprecated. Use MarkovianCC.\n" );
 		assert( cctype != CCType::NASHCC );
+		//NashCC congctrl( nashcc_utility_mode, param );
+		//CTCP< NashCC > connection( congctrl, serverip, serverport, sourceport );
+		//TrafficGenerator<CTCP<NashCC>> traffic_generator( connection, onduration, offduration, traffic_params );
+		//traffic_generator.spawn_senders( 1 );
 	}
 	else if ( cctype == CCType::MARKOVIANCC ){
 		fprintf( stdout, "Using MarkovianCC.\n");
 		MarkovianCC congctrl(1.0);
 		assert(delta_conf != "");
 		congctrl.interpret_config_str(delta_conf);
-		CTCP< MarkovianCC > connection( congctrl, serverip, serverport, train_length );
+		CTCP< MarkovianCC > connection( congctrl, serverip, serverport, sourceport, train_length );
 		TrafficGenerator< CTCP< MarkovianCC > > traffic_generator( connection, onduration, offduration, traffic_params );
 		traffic_generator.spawn_senders( 1 );
 	}
