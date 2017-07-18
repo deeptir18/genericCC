@@ -27,4 +27,5 @@ public:
 		//int res2 = system( "python parse-sockperf.py < /tmp/kernel-tcp-out" ); res2 = res2;
 		std::cout<<"Ran \""<<command<<"\" Returned with: "<<res<<std::endl;
 	}
+  void send_fin() {}
 };

@@ -90,16 +90,20 @@ void TrafficGenerator<T>::send_data(int seed, int id) {
 			on_duration = _traffic_params._on_off._mean_on_unit;
 		}
 
+    std::cout << "On time: " << on_duration << ", Off time: " << off_duration << endl << std::flush;
+
 		bool byte_switched = (_switch_type == SwitchType::BYTE_SWITCHED);
 		_ctcp.send_data(on_duration, byte_switched, int32_t(flow_id), int32_t(id));
-
+    std::cout << "Finished on duration for flow " << flow_id << " and about to start off duration " << endl << std::flush;
 		std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(unsigned(off_duration)));
 
 		++ flow_id;
 		std::cout<<"Sender: "<<id<<", Flow: "<<flow_id<<". Transmitted for "<<on_duration<<(byte_switched?" bytes.":" ms.")<<endl<<std::flush;
 
-		if (flow_id >= _traffic_params._on_off.num_cycles)
+		if (flow_id >= _traffic_params._on_off.num_cycles) {
+      _ctcp.send_fin();
 			break;
+    }
 	}
 }
 
