@@ -85,7 +85,7 @@ public:
 
   //duration in milliseconds
   void send_data ( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id );
-
+  void send_fin ( );
   void listen_for_data ( );
 };
 
@@ -107,7 +107,7 @@ double current_timestamp( chrono::high_resolution_clock::time_point &start_time_
 template<class T>
 void CTCP<T>::tcp_handshake() {
   TCPHeader header, ack_header;
-
+  cerr << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
   char buf[packet_size];
   memset(buf, '-', sizeof(char)*packet_size);
@@ -124,6 +124,7 @@ void CTCP<T>::tcp_handshake() {
   double rtt;
   chrono::high_resolution_clock::time_point start_time_point;
   while ( true ) {
+    cerr << "Trying to establish another connection" << endl;
     start_time_point = chrono::high_resolution_clock::now();
     memcpy( buf, &header, sizeof(TCPHeader) );
     socket.senddata( buf, packet_size, NULL );
@@ -146,6 +147,7 @@ void CTCP<T>::tcp_handshake() {
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
 template<class T>
 void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id ){
+  cout << "In send data function about to send more data" << endl;
   tcp_handshake();
 
   TCPHeader header, ack_header;
@@ -279,7 +281,6 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     
     _largest_ack = max(_largest_ack, ack_header.seq_num);
   }
-	socket.senddata( "FIN", 3, NULL );
   
   cur_time = current_timestamp( start_time_point );
   
@@ -299,6 +300,12 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   
   if( LINK_LOGGING )
     link_logfile.close();
+}
+
+template<class T>
+void CTCP<T>::send_fin ( ) {
+  cout << "About to send the fins" << endl;
+  socket.senddata( "FIN", 3, NULL );
 }
 
 template<class T>
