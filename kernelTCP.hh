@@ -28,4 +28,5 @@ public:
 		std::cout<<"Ran \""<<command<<"\" Returned with: "<<res<<std::endl;
 	}
   void send_fin() {}
+  void send_start_flow() {}
 };

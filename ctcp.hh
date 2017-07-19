@@ -82,6 +82,7 @@ public:
   //duration in milliseconds
   void send_data ( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id );
   void send_fin ( );
+  void send_start_flow ( );
   void listen_for_data ( );
 };
 
@@ -105,6 +106,8 @@ double current_timestamp( chrono::high_resolution_clock::time_point &start_time_
 template<class T>
 void CTCP<T>::tcp_handshake() {
   TCPHeader header, ack_header;
+  // once connection established - send start flow message
+  send_start_flow();
   cerr << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
   char buf[packet_size];
@@ -263,10 +266,10 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   congctrl.close();
   
   this->tot_time_transmitted += cur_time;
-  
+  // send the end flow message
   double throughput = transmitted_bytes/( cur_time / 1000.0 );
   double delay = (delay_sum / 1000) / num_packets_transmitted;
-  
+
   std::cout<<"\n\nData Successfully Transmitted\n\tThroughput: "<<throughput<<" bytes/sec\n\tAverage Delay: "<<delay<<" sec/packet\n";
   
   double avg_throughput = tot_bytes_transmitted / ( tot_time_transmitted / 1000.0);
@@ -281,6 +284,12 @@ template<class T>
 void CTCP<T>::send_fin ( ) {
   cout << "About to send the fins" << endl;
   socket.senddata( "FIN", 3, NULL );
+}
+
+template<class T>
+void CTCP<T>::send_start_flow ( ) {
+  cout << "About to send the start flow" << endl;
+  socket.senddata( "START_FLOW", 10, NULL );
 }
 
 template<class T>
