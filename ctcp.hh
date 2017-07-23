@@ -204,6 +204,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       if ((cur_time - _last_send_time) / congctrl.get_intersend_time() > 10 ||
           seq_num >= _largest_ack + congctrl.get_the_window()) {
         // Hopeless. Stop trying to compensate.
+        cout << "Something up with the intersend time" << endl;
         _last_send_time = cur_time;
       }
       else

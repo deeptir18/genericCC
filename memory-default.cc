@@ -13,6 +13,11 @@ void Memory::packets_received( const vector< Packet > & packets, const unsigned 
       continue;
     }
 
+    if ( _largest_ack + 1 < x.seq_num) {
+
+      cout << "LOST A PACKET" << endl;
+    }
+
     // Assumption: assuming no reordering to detect packet loss
     /*if ( _largest_ack + 1 < x.seq_num ){
       _lost_packets.push( x );
