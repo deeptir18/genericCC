@@ -45,6 +45,7 @@ const Whisker & WhiskerTree::use_whisker( const Memory & _memory, const bool tra
 
   if ( !ret ) {
     fprintf( stderr, "ERROR: No whisker found for %s\n", _memory.str().c_str() );
+    cout << "Exiting becasue no whisker found err" << endl;
     exit( 1 );
   }
 
