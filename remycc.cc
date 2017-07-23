@@ -16,6 +16,7 @@ void RemyCC::init( void ){
 
 void RemyCC::onACK(int ack, double receiver_timestamp, double sender_timestamp __attribute((unused))){
 	int seq_num = ack - 1;
+  std::cout << "ACK # " << ack << " received " << std::endl;
 	//assert( unacknowledged_packets.count( seq_num ) > 0);
 	if ( unacknowledged_packets.count( seq_num ) > 1 ) { std::cout<<"Dupack EXITING: "<<seq_num<<std::endl; return; }
 	if ( unacknowledged_packets.count( seq_num ) < 1 ) { std::cout<<"Unknown Ack EXITING!! "<<seq_num<<std::endl; return; }

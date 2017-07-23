@@ -200,6 +200,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       header.receiver_timestamp = 0;
       
       memcpy( buf, &header, sizeof(TCPHeader) );
+      std::cout << "sending packet " << header.seq_num << endl;
       socket.senddata( buf, packet_size, NULL );
       if ((cur_time - _last_send_time) / congctrl.get_intersend_time() > 10 ||
           seq_num >= _largest_ack + congctrl.get_the_window()) {
