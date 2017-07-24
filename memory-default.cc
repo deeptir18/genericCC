@@ -33,6 +33,7 @@ void Memory::packets_received( const vector< Packet > & packets, const unsigned 
       _min_rtt = rtt;
       _rtt_estimate = rtt;
     } else {
+      cout << "Last receive time: " << _last_receiver_timestamp << ", current receive time: " << x.receiver_timestamp << endl;
       
       _rec_send_ewma = (1 - alpha) * _rec_send_ewma + alpha * (x.tick_sent - _last_tick_sent) * link_rate_normalizing_factor;
       _rec_rec_ewma = (1 - alpha) * _rec_rec_ewma + alpha * (x.receiver_timestamp - _last_receiver_timestamp) * link_rate_normalizing_factor;

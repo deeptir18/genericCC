@@ -223,10 +223,16 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       timeout = min( timeout, _last_send_time + congctrl.get_intersend_time()*num_packets_per_link_rate_measurement - cur_time );
     
     sockaddr_in other_addr;
+    cout << "Waiting to receive data " << endl;
     if(socket.receivedata(buf, packet_size, timeout, other_addr) == 0) {
+      cout << "Didn't get data yet " << endl;
       cur_time = current_timestamp(start_time_point);
-      if(cur_time > _last_send_time + congctrl.get_timeout())
+      if(cur_time > _last_send_time + congctrl.get_timeout()) {
+        cout << "cALLING timeout function" << endl;
         congctrl.onTimeout();
+      } else {
+        cout << "cur_time " << cur_time << " and last send time +timeout " << _last_send_time + congctrl.get_timeout() << endl;
+      }
       continue;
     }
     
