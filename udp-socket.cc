@@ -123,20 +123,25 @@ int UDPSocket::receivedata(char* buffer, int bufsize, int timeout, sockaddr_in &
 	if( poll_val == 1){
 		if(pfds[0].revents & POLLIN){
 			other_len = sizeof(other_addr);
+      std::cout << "About to call recvfrom" << std::endl;
 			int res = recvfrom( udp_socket, buffer, bufsize, 0, (struct sockaddr*) &other_addr, &other_len );
+      std::cout << "Called recv from" << std::endl;
 			if ( res == -1 ){
 				std::cout<<"Error while receiving datagram. Code: "<<errno<<std::endl;
 			}
+      std::cout << "Returning from the thing because got something" << std::endl;
 			buffer[res] = '\0'; //terminating null character is not added by default
 
 			return res;
 		}
 		else{
 			std::cout<<"There was an error while polling. Value of event field: "<<pfds[0].revents<<endl;
+      std::cout << "Returning -1 from this function" << std::endl;
 			return -1;
 		}
 	}
 	else if ( poll_val == 0){
+    std::cout << "There was a timeout in polling so returning" << std::endl;
 		return 0; //there was a timeout
 	}
 	else if ( poll_val == -1 ){
