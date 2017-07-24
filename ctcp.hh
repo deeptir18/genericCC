@@ -231,7 +231,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
         //cout << "cALLING timeout function" << endl;
         congctrl.onTimeout();
       } else {
-        cout << "cur_time " << cur_time << " and last send time +timeout " << _last_send_time + congctrl.get_timeout() << endl;
+        //cout << "cur_time " << cur_time << " and last send time +timeout " << _last_send_time + congctrl.get_timeout() << endl;
       }
       continue;
     }
@@ -242,7 +242,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     
     if (ack_header.src_id != src_id || ack_header.flow_id != flow_id){
       if(ack_header.src_id != src_id ){
-        //std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
+        std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
       }
       continue;
     }
