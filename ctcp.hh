@@ -142,7 +142,7 @@ void CTCP<T>::tcp_handshake() {
   congctrl.set_min_rtt(rtt);
   cout << "Connection Established." << endl; 
   // once connection established - send start flow message
-  send_start_flow();
+  //send_start_flow();
 }
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
