@@ -222,6 +222,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
 
     cur_time = current_timestamp( start_time_point );
     double timeout = _last_send_time + 1000; //congctrl.get_timeout(); // everything in milliseconds
+    timeout = 1000;
     if(congctrl.get_the_window() > 0)
       timeout = min( timeout, _last_send_time + congctrl.get_intersend_time()*num_packets_per_link_rate_measurement - cur_time );
     
