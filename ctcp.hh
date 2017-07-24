@@ -242,7 +242,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     
     if (ack_header.src_id != src_id || ack_header.flow_id != flow_id){
       if(ack_header.src_id != src_id ){
-        std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
+        //std::cerr<<"Received incorrect ack for src "<<ack_header.src_id<<" to "<<src_id<<endl;
       }
       continue;
     }
@@ -259,6 +259,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     this->tot_packets_transmitted += 1;
     
     congctrl.set_timestamp(cur_time);
+    cout << "seq num: " << ack_header.seq_num << ", rec: " << ack_header.receiver_timestamp << ", send: " << ack_header.sender_timestamp << endl;
     congctrl.onACK(ack_header.seq_num,
                    ack_header.receiver_timestamp,
                    ack_header.sender_timestamp);
