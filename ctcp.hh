@@ -150,6 +150,7 @@ template<class T>
 void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, int32_t src_id ){
   cout << "In send data function about to send more data" << endl;
   tcp_handshake();
+  int last_sent_packet = 0;
 
   TCPHeader header, ack_header;
 
@@ -201,6 +202,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       
       memcpy( buf, &header, sizeof(TCPHeader) );
       std::cout << "sending packet " << header.seq_num << endl;
+      last_sent_packet = int(header.seq_num);
       socket.senddata( buf, packet_size, NULL );
       if ((cur_time - _last_send_time) / congctrl.get_intersend_time() > 10 ||
           seq_num >= _largest_ack + congctrl.get_the_window()) {
@@ -224,7 +226,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       timeout = min( timeout, _last_send_time + congctrl.get_intersend_time()*num_packets_per_link_rate_measurement - cur_time );
     
     sockaddr_in other_addr;
-    cout << "Waiting to receive data " << endl;
+    cout << "Waiting to receive data: last sent packet-> " << last_sent_packet << ", last rec packet =-> " << num_packets_transmitted <<endl;
     if(socket.receivedata(buf, packet_size, timeout, other_addr) == 0) {
       cout << "Didn't get data yet " << endl;
       cur_time = current_timestamp(start_time_point);
