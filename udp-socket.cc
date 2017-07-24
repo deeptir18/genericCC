@@ -66,7 +66,7 @@ ssize_t UDPSocket::senddata(const char* data, ssize_t size, sockaddr_in *s_dest_
 
 	    if (inet_aton(ipaddr.c_str(), &dest_addr.sin_addr) == 0) 
 	    {
-	        std::cerr<<"inet_aton failed while sending data. Code: "<<errno<<endl;
+	        std::cout<<"inet_aton failed while sending data. Code: "<<errno<<endl;
 	    }
 	}
 	else{
@@ -77,7 +77,7 @@ ssize_t UDPSocket::senddata(const char* data, ssize_t size, sockaddr_in *s_dest_
 	int res = sendto(udp_socket, data, size, 0, (struct sockaddr *) &dest_addr, sizeof(dest_addr));
 	
 	if ( res == -1 ){
-		std::cerr<<"Error while sending datagram. Code: "<<errno<<std::endl;
+		std::cout<<"Error while sending datagram. Code: "<<errno<<std::endl;
 		//assert(false);
 		return -1;
 	}
@@ -112,7 +112,7 @@ ssize_t UDPSocket::senddata(const char* data, ssize_t size, string dest_ip, int 
 // actual timeout to exceed what is specified
 int UDPSocket::receivedata(char* buffer, int bufsize, int timeout, sockaddr_in &other_addr){
 	assert(bound); // Socket not bound to an address. Please either use 'bind' or 'sendto'
-
+  std::cout << "In the receive data function" << std::endl;
 	unsigned int other_len;
 
 	struct pollfd pfds[1];
@@ -125,14 +125,14 @@ int UDPSocket::receivedata(char* buffer, int bufsize, int timeout, sockaddr_in &
 			other_len = sizeof(other_addr);
 			int res = recvfrom( udp_socket, buffer, bufsize, 0, (struct sockaddr*) &other_addr, &other_len );
 			if ( res == -1 ){
-				std::cerr<<"Error while receiving datagram. Code: "<<errno<<std::endl;
+				std::cout<<"Error while receiving datagram. Code: "<<errno<<std::endl;
 			}
 			buffer[res] = '\0'; //terminating null character is not added by default
 
 			return res;
 		}
 		else{
-			std::cerr<<"There was an error while polling. Value of event field: "<<pfds[0].revents<<endl;
+			std::cout<<"There was an error while polling. Value of event field: "<<pfds[0].revents<<endl;
 			return -1;
 		}
 	}
@@ -142,7 +142,7 @@ int UDPSocket::receivedata(char* buffer, int bufsize, int timeout, sockaddr_in &
 	else if ( poll_val == -1 ){
 		if ( errno == 4 )
 			return receivedata(buffer, bufsize, timeout, other_addr); //to make gprof work
-		std::cerr<<"There was an error while polling. Code: "<<errno<<endl;
+		std::cout<<"There was an error while polling. Code: "<<errno<<endl;
 		return -1;
 	}
 	else{
