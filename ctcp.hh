@@ -215,6 +215,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       congctrl.onPktSent( header.seq_num );
 
       seq_num++;
+      cout << "At end of inner sending while loop" << endl;
     }
 
     cur_time = current_timestamp( start_time_point );
@@ -223,19 +224,19 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       timeout = min( timeout, _last_send_time + congctrl.get_intersend_time()*num_packets_per_link_rate_measurement - cur_time );
     
     sockaddr_in other_addr;
-    //cout << "Waiting to receive data " << endl;
+    cout << "Waiting to receive data " << endl;
     if(socket.receivedata(buf, packet_size, timeout, other_addr) == 0) {
-      //cout << "Didn't get data yet " << endl;
+      cout << "Didn't get data yet " << endl;
       cur_time = current_timestamp(start_time_point);
       if(cur_time > _last_send_time + congctrl.get_timeout()) {
-        //cout << "cALLING timeout function" << endl;
+        cout << "cALLING timeout function" << endl;
         congctrl.onTimeout();
       } else {
-        //cout << "cur_time " << cur_time << " and last send time +timeout " << _last_send_time + congctrl.get_timeout() << endl;
+        cout << "cur_time " << cur_time << " and last send time +timeout " << _last_send_time + congctrl.get_timeout() << endl;
       }
       continue;
     }
-    //cout << "Past loop of reading socket: received something" << endl;
+    cout << "Past loop of reading socket: received something" << endl;
     
     memcpy(&ack_header, buf, sizeof(TCPHeader));
     ack_header.seq_num++; // because the receiver doesn't do that for us yet
