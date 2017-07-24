@@ -18,6 +18,7 @@ void Memory::packets_received( const vector< Packet > & packets, const unsigned 
       cout << "LOST A PACKET" << endl;
     }
 
+     cout << "Largest ack so far: " << _largest_ack << ", seq num of current packet: " << x.seq_num << endl;
     // Assumption: assuming no reordering to detect packet loss
     /*if ( _largest_ack + 1 < x.seq_num ){
       _lost_packets.push( x );
