@@ -235,6 +235,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       }
       continue;
     }
+    cout << "Past loop of reading socket: received something" << endl;
     
     memcpy(&ack_header, buf, sizeof(TCPHeader));
     ack_header.seq_num++; // because the receiver doesn't do that for us yet
