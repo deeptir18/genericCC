@@ -40,7 +40,7 @@ public:
 	RemyCC( WhiskerTree & s_tree ) 
 	  : 	tree( s_tree ), rat( tree ), start_time_point(), unacknowledged_packets(), flow_id( 0 ), cur_tick( 0 ), measured_link_rate( -1 ) 
 	{
-		_the_window = 2;
+		_the_window = 10;
 		_intersend_time = 0;
 		_timeout = 1000;
 	}

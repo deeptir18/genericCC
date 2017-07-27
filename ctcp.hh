@@ -62,6 +62,9 @@ public:
     tot_bytes_transmitted( 0 ),
     tot_packets_transmitted( 0 )
   {
+    cout << "Client ip is " << ipaddr << endl;
+    cout << "Clien tport is " << port << endl;
+    cout << "sourceport is " << sourceport << endl;
     socket.bindsocket( ipaddr, port, sourceport );
   }
 
@@ -108,7 +111,7 @@ double current_timestamp( chrono::high_resolution_clock::time_point &start_time_
 template<class T>
 void CTCP<T>::tcp_handshake() {
   TCPHeader header, ack_header;
-  cerr << "in tcp handshake function" << endl;
+  cout << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
   char buf[packet_size];
   memset(buf, '-', sizeof(char)*packet_size);
@@ -227,10 +230,9 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       memcpy( buf, &header, sizeof(TCPHeader) );
       socket.senddata( buf, packet_size, NULL );
       _last_send_time += congctrl.get_intersend_time();
-      
       if (seq_num % train_length == 0) {
-	congctrl.set_timestamp(cur_time);
-	congctrl.onPktSent( header.seq_num / train_length );
+	      congctrl.set_timestamp(cur_time);
+	      congctrl.onPktSent( header.seq_num / train_length );
       }
 
       seq_num++;
@@ -245,7 +247,11 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     double timeout = _last_send_time + 1000; //congctrl.get_timeout(); // everything in milliseconds
     if(congctrl.get_the_window() > 0)
       timeout = min( 1000.0, _last_send_time + congctrl.get_intersend_time()*train_length - cur_time );
-    
+    if ( timeout < 0 ) {
+      cout << "TIMEOUT BECAME LESS THAN 0: is " << timeout << endl;
+      timeout = congctrl.get_intersend_time()*train_length;
+    }
+
     sockaddr_in other_addr;
     if(socket.receivedata(buf, packet_size, timeout, other_addr) == 0) {
       cur_time = current_timestamp(start_time_point);
@@ -255,6 +261,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     }
     
     memcpy(&ack_header, buf, sizeof(TCPHeader));
+    cout << "Received ack # " << ack_header.seq_num << endl;
     ack_header.seq_num++; // because the receiver doesn't do that for us yet
     
     if (ack_header.src_id != src_id || ack_header.flow_id != flow_id){
@@ -278,7 +285,6 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
 	congctrl.onLinkRateMeasurement(1e3 / link_rate_estimate );
     }
     last_recv_time = cur_time;
-    
     // Track performance statistics
     delay_sum += cur_time - ack_header.sender_timestamp;
     this->tot_delay += cur_time - ack_header.sender_timestamp;

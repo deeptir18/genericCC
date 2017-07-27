@@ -8,7 +8,7 @@ void RemyCC::init( void ){
 	flow_id = 0;
 	start_time_point = std::chrono::high_resolution_clock::now();
 	rat.reset( current_timestamp() );
-	_the_window = 2.0;
+	_the_window = 10.0;
 	_intersend_time = 0;
 }
 

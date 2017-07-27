@@ -81,7 +81,7 @@ void echo_packets(UDPSocket &sender_socket) {
 			//socket_lock.unlock();
 			assert( received != -1 );
 		}
-
+    std::cout << "Received a packet!" << std::endl;
 		TCPHeader *header = (TCPHeader*)buff;
 		header->receiver_timestamp = \
 			chrono::duration_cast<chrono::duration<double>>(
