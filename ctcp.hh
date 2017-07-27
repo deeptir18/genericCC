@@ -131,6 +131,7 @@ void CTCP<T>::tcp_handshake() {
   double last_send_time = numeric_limits<double>::min();
   bool multi_send = false;
   while ( true ) {
+    double cur_time = current_timestamp(start_time_point);
     if (last_send_time < cur_time - 2000) {
       memcpy( buf, &header, sizeof(TCPHeader) );
       socket.senddata( buf, packet_size, NULL );
