@@ -62,9 +62,6 @@ public:
     tot_bytes_transmitted( 0 ),
     tot_packets_transmitted( 0 )
   {
-    cout << "Client ip is " << ipaddr << endl;
-    cout << "Clien tport is " << port << endl;
-    cout << "sourceport is " << sourceport << endl;
     socket.bindsocket( ipaddr, port, sourceport );
   }
 
@@ -110,6 +107,7 @@ double current_timestamp( chrono::high_resolution_clock::time_point &start_time_
 
 template<class T>
 void CTCP<T>::tcp_handshake() {
+  //send_start_flow();
   TCPHeader header, ack_header;
   cout << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
@@ -155,8 +153,6 @@ void CTCP<T>::tcp_handshake() {
   if (!multi_send)
     congctrl.set_min_rtt(rtt);
   cout << "Connection Established." << endl; 
-  // once connection established - send start flow message
-  send_start_flow();
 }
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
@@ -249,7 +245,6 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     if(congctrl.get_the_window() > 0)
       timeout = min( 1000.0, _last_send_time + congctrl.get_intersend_time()*train_length - cur_time );
     if ( timeout < 0 ) {
-      cout << "TIMEOUT BECAME LESS THAN 0: is " << timeout << endl;
       timeout = congctrl.get_intersend_time()*train_length;
     }
 
@@ -262,7 +257,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     }
     
     memcpy(&ack_header, buf, sizeof(TCPHeader));
-    cout << "Received ack # " << ack_header.seq_num << endl;
+    //cout << "Received ack # " << ack_header.seq_num << endl;
     ack_header.seq_num++; // because the receiver doesn't do that for us yet
     
     if (ack_header.src_id != src_id || ack_header.flow_id != flow_id){
