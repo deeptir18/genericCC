@@ -109,7 +109,7 @@ template<class T>
 void CTCP<T>::tcp_handshake() {
   //send_start_flow();
   TCPHeader header, ack_header;
-  cout << "in tcp handshake function" << endl;
+  cerr << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
   char buf[packet_size];
   memset(buf, '-', sizeof(char)*packet_size);
@@ -153,6 +153,8 @@ void CTCP<T>::tcp_handshake() {
   if (!multi_send)
     congctrl.set_min_rtt(rtt);
   cout << "Connection Established." << endl; 
+  // once connection established - send start flow message
+  send_start_flow();
 }
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
