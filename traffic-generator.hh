@@ -83,7 +83,7 @@ void TrafficGenerator<T>::send_data(int seed, int id) {
 	unsigned int flow_id = 0;
 	while (1) {
 		double off_duration = off.sample();
-		double on_duration = on.sample();
+		double on_duration = on.sample() + 1000; // have it send at least for 1 second
 
 		if (_traffic_type == TrafficType::DETERMINISTIC_ON_OFF) {
 			off_duration = _traffic_params._on_off._mean_off_unit;
