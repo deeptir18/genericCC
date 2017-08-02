@@ -130,6 +130,10 @@ void CTCP<T>::tcp_handshake() {
   bool multi_send = false;
   while ( true ) {
     double cur_time = current_timestamp(start_time_point);
+    if ( cur_time > 15000 ) {
+      cout << "Did not establish connection in over 15 seconds" << endl;
+      exit(-1);
+    }
     if (last_send_time < cur_time - 2000) {
       memcpy( buf, &header, sizeof(TCPHeader) );
       socket.senddata( buf, packet_size, NULL );
@@ -153,8 +157,6 @@ void CTCP<T>::tcp_handshake() {
   if (!multi_send)
     congctrl.set_min_rtt(rtt);
   cout << "Connection Established." << endl; 
-  // once connection established - send start flow message
-  send_start_flow();
 }
 
 // takes flow_size in milliseconds (byte_switched=false) or in bytes (byte_switched=true) 
