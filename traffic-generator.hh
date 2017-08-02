@@ -101,7 +101,6 @@ void TrafficGenerator<T>::send_data(int seed, int id) {
 		std::cout<<"Sender: "<<id<<", Flow: "<<flow_id<<". Transmitted for "<<on_duration<<(byte_switched?" bytes.":" ms.")<<endl<<std::flush;
 
 		if (flow_id >= _traffic_params._on_off.num_cycles) {
-      _ctcp.send_fin();
 			break;
     }
 	}
