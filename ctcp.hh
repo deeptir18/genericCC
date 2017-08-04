@@ -130,21 +130,23 @@ void CTCP<T>::tcp_handshake() {
   bool multi_send = false;
   while ( true ) {
     double cur_time = current_timestamp(start_time_point);
-    if ( cur_time > 15000 ) {
-      cout << "Did not establish connection in over 15 seconds" << endl;
+    if ( cur_time > 60000 ) {
+      cout << "Did not establish connection in over 60 seconds" << endl;
       exit(-1);
     }
-    if (last_send_time < cur_time - 2000) {
-      memcpy( buf, &header, sizeof(TCPHeader) );
-      socket.senddata( buf, packet_size, NULL );
-      if (last_send_time != numeric_limits<double>::min())
-	      multi_send = true;
-      last_send_time = cur_time;
-    }
-    if (socket.receivedata( buf, packet_size, 2000, other_addr ) == 0) {
-      cerr << "Could not establish connection" << endl;
+    //if (last_send_time < cur_time - 1000) {
+    memcpy( buf, &header, sizeof(TCPHeader) );
+    cout << "Sending handshake packet" << endl;
+    socket.senddata( buf, packet_size, NULL );
+    if (last_send_time != numeric_limits<double>::min())
+	    multi_send = true;
+    last_send_time = cur_time;
+    //}
+    if (socket.receivedata( buf, packet_size, 1000, other_addr ) == 0) {
+      cout << "Could not establish connection" << endl;
       continue;
     }
+    cout << "Received a packet!" << endl;
     memcpy(&ack_header, buf, sizeof(TCPHeader));
     if (ack_header.seq_num != -1 || ack_header.flow_id != -1)
       continue;
