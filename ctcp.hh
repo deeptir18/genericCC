@@ -12,7 +12,9 @@
 #include "remycc.hh"
 #include "tcp-header.hh"
 #include "udp-socket.hh"
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 using namespace std;
 
 #define packet_size 1500
@@ -62,7 +64,7 @@ public:
     tot_bytes_transmitted( 0 ),
     tot_packets_transmitted( 0 )
   {
-    socket.bindsocket( ipaddr, port, sourceport );
+    socket.bindsocket( dstaddr, dstport, srcport );
   }
 
   CTCP( CTCP<T> &other )
@@ -105,9 +107,31 @@ double current_timestamp( chrono::high_resolution_clock::time_point &start_time_
   return duration_cast<duration<double>>(cur_time_point - start_time_point).count()*1000;
 }
 
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen)
+{
+    switch(sa->sa_family) {
+        case AF_INET:
+            inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr),
+                    s, maxlen);
+            break;
+
+        case AF_INET6:
+            inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr),
+                    s, maxlen);
+            break;
+
+        default:
+            strncpy(s, "Unknown AF", maxlen);
+            return NULL;
+    }
+
+    return s;
+}
+
 template<class T>
 void CTCP<T>::tcp_handshake() {
-  //send_start_flow();
+
+
   TCPHeader header, ack_header;
   cerr << "in tcp handshake function" << endl;
   // this is the data that is transmitted. A sizeof(TCPHeader) header followed by a sring of dashes
@@ -121,8 +145,31 @@ void CTCP<T>::tcp_handshake() {
   header.sender_timestamp = -1;
   header.receiver_timestamp = -1;
 
-
+	// set reuse on the socket
+	if ( socket.set_reuse() < 0 ) {
+		cout << "Could not set reuse on the socket" << endl;
+	} else {
+		cout << "Set reuse on socket" << endl;
+	}
   sockaddr_in other_addr;
+  // first get the IP and the port the client is coming from, wait for "open sesame"
+  cout << "Waiting to receive initial data" << endl;
+  if ( socket.receivedata( buf, packet_size, 30000, other_addr ) == 0 ) {
+
+    cout << "Did not get an initial packet telling us where client is coming from in 30 seconds" << endl;
+		cout << "Keeping socket bound to what is passed in" << endl;
+  } else {
+    cout << "Received client IP and port and initial open seasame!!!!!" << endl;
+		char s;
+		get_ip_str( (struct sockaddr *) &other_addr, &s, INET_ADDRSTRLEN);
+    dstaddr = string(&s, INET_ADDRSTRLEN);
+    dstport = (int) ntohs(other_addr.sin_port);
+    cout << "IP: " << dstaddr << ", port: " << dstport << endl;
+		socket.close_socket();
+  	UDPSocket new_socket;
+    new_socket.bindsocket( dstaddr, dstport, srcport );
+		socket = new_socket;
+	}
   double rtt;
   chrono::high_resolution_clock::time_point start_time_point;
   start_time_point = chrono::high_resolution_clock::now();

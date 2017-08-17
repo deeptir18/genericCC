@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 class UDPSocket{
 public:
@@ -29,7 +30,16 @@ public:
 	ssize_t senddata(const char* data, ssize_t size, SockAddress *s_dest_addr);
 	ssize_t senddata(const char* data, ssize_t size, std::string dest_ip, int dest_port);
 	int receivedata(char* buffer, int bufsize, int timeout, SockAddress &other_addr);
-
+  bool set_reuse() {
+    int enable = 1;
+    if (setsockopt(udp_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+      return -1;
+    return 0;
+  }
+  bool close_socket() {
+    close(udp_socket);
+    return 0;
+  }
 	static void decipher_socket_addr(SockAddress addr, std::string& ip_addr, int& port);
 	static std::string decipher_socket_addr(SockAddress addr);
 };
