@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 using namespace std;
 
-#define packet_size 1500
+#define packet_size 1280
 #define data_size (packet_size-sizeof(TCPHeader))
 
 template <class T>
