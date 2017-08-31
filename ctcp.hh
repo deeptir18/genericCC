@@ -372,6 +372,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   double avg_throughput = tot_bytes_transmitted / ( tot_time_transmitted / 1000.0);
   double avg_delay = (tot_delay / 1000) / tot_packets_transmitted;
   std::cout<<"\n\tAvg. Throughput: "<<avg_throughput<<" bytes/sec\n\tAverage Delay: "<<avg_delay<<" sec/packet\n";
+  std::cout << "Link rate est: " << link_rate_estimate << std::endl;
   
   if( LINK_LOGGING )
     link_logfile.close();
