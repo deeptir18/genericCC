@@ -333,6 +333,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
       if (ack_header.seq_num > 2 * train_length)
 	congctrl.onLinkRateMeasurement(1e3 / link_rate_estimate );
     }
+    std::cout << "Link rate est: " << link_rate_estimate << std::endl;
     last_recv_time = cur_time;
     // Track performance statistics
     delay_sum += cur_time - ack_header.sender_timestamp;
