@@ -238,6 +238,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   // for flow control
   _last_send_time = 0.0;
   double cur_time = 0;
+  double last_written_to_file = 0;
   int seq_num = 0;
   _largest_ack = -1;
 
@@ -346,6 +347,11 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     last_recv_time = cur_time;
     // Track performance statistics
     delay_sum += cur_time - ack_header.sender_timestamp;
+    // check last written
+    if ( ( cur_time - last_written_to_file ) > 400 || last_written_to_file == 0 ) {
+      last_written_to_file =  cur_time;
+      rtt_loss_logfile << ack_header.sender_timestamp << "," << ( cur_time - ack_header.sender_timestamp ) << endl;
+    }
     this->tot_delay += cur_time - ack_header.sender_timestamp;
     
     transmitted_bytes += data_size;
