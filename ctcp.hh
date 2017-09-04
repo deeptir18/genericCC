@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <thread>
 
 #include "ccc.hh"
@@ -44,6 +45,8 @@ private:
   double tot_delay;
   int tot_bytes_transmitted;
   int tot_packets_transmitted;
+  int tot_packets_sent;
+  int tot_packets_lost;
 
   void tcp_handshake();
 
@@ -62,9 +65,11 @@ public:
     tot_time_transmitted( 0 ),
     tot_delay( 0 ),
     tot_bytes_transmitted( 0 ),
-    tot_packets_transmitted( 0 )
+    tot_packets_transmitted( 0 ),
+    tot_packets_sent( 0 ),
+    tot_packets_lost( 0 )
   {
-    socket.bindsocket( dstaddr, dstport, srcport );
+    socket.bindsocket( dstaddr, dstport, srcport  );
   }
 
   CTCP( CTCP<T> &other )
@@ -220,7 +225,11 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   char buf[packet_size];
   memset(buf, '-', sizeof(char)*packet_size);
   buf[packet_size-1] = '\0';
-
+  // for rtt & loss rate logging
+  ofstream rtt_loss_logfile;
+  if ( LOGGING_DATA ) {
+    rtt_loss_logfile.open( OUTFILE, ios::out );
+  }
   // for link logging
   ofstream link_logfile;
   if( LINK_LOGGING )
@@ -279,6 +288,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
 
       memcpy( buf, &header, sizeof(TCPHeader) );
       socket.senddata( buf, packet_size, NULL );
+      tot_packets_sent += 1;
       _last_send_time += congctrl.get_intersend_time();
       if (seq_num % train_length == 0) {
 	      congctrl.set_timestamp(cur_time);
@@ -354,6 +364,7 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
     //assert(false);
 #endif
     
+    tot_packets_lost += ( ack_header.seq_num - _largest_ack - 1);
     _largest_ack = max(_largest_ack, ack_header.seq_num);
   }
   
@@ -372,9 +383,15 @@ void CTCP<T>::send_data( double flow_size, bool byte_switched, int32_t flow_id, 
   double avg_throughput = tot_bytes_transmitted / ( tot_time_transmitted / 1000.0);
   double avg_delay = (tot_delay / 1000) / tot_packets_transmitted;
   std::cout<<"\n\tAvg. Throughput: "<<avg_throughput<<" bytes/sec\n\tAverage Delay: "<<avg_delay<<" sec/packet\n";
-  
+  double lost_packets = double( tot_packets_sent ) - double( tot_packets_transmitted );
+  double loss_rate =  lost_packets/ double(tot_packets_sent);
+  fprintf( stdout, "Lost %d packets\n", tot_packets_lost );
+  cout << "Lost " << lost_packets << " out of " << tot_packets_sent << "; loss rate: " << loss_rate << std::endl;
+  rtt_loss_logfile << loss_rate << std::endl;
   if( LINK_LOGGING )
     link_logfile.close();
+  if ( LOGGING_DATA )
+    rtt_loss_logfile.close();
 }
 
 template<class T>

@@ -11,6 +11,8 @@
 // see configs.hh for details
 double TRAINING_LINK_RATE = 4000000.0/1500.0;
 bool LINK_LOGGING = false;
+bool LOGGING_DATA = false;
+std::string OUTFILE;
 std::string LINK_LOGGING_FILENAME;
 
 int main( int argc, char *argv[] ) {
@@ -75,6 +77,10 @@ int main( int argc, char *argv[] ) {
 			LINK_LOGGING_FILENAME = arg.substr( 8 );
 			LINK_LOGGING = true;
 		}
+    else if ( arg.substr( 0, 8 ) == "logfile=" ) {
+      OUTFILE = arg.substr( 8 );
+      LOGGING_DATA = true;
+    }
 		else if( arg.substr( 0, 15 ) == "traffic_params=")
 			traffic_params = arg.substr( 15 );
 		else if (arg.substr( 0, 11) == "delta_conf=")

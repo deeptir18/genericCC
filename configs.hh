@@ -25,3 +25,5 @@ extern double TRAINING_LINK_RATE; // declared in sender.cc
 // sent along with a timestamp. Declared in sender.cc
 extern bool LINK_LOGGING;
 extern std::string LINK_LOGGING_FILENAME;
+extern bool LOGGING_DATA;
+extern std::string OUTFILE;
