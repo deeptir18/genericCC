@@ -89,13 +89,13 @@ void MarkovianCC::update_delta(bool pkt_lost __attribute((unused)), double cur_r
       cout << "Packet lost: " << cur_time << endl;
     }
     if (!rtt_window.is_copa(rtt_acked, cur_time)) {
-      if (operation_mode == DEFAULT_MODE)
-        cout << "Switched to loss sensitive mode." << endl;
+      //if (operation_mode == DEFAULT_MODE)
+      //  cout << "Switched to loss sensitive mode." << endl;
       operation_mode = LOSS_SENSITIVE_MODE;
     }
     else {
-      if (operation_mode == LOSS_SENSITIVE_MODE)
-        cout << "Switched to default mode." << endl;
+      //if (operation_mode == LOSS_SENSITIVE_MODE)
+      //  cout << "Switched to default mode." << endl;
       operation_mode = DEFAULT_MODE;
       delta = default_delta;
     }
@@ -105,7 +105,7 @@ void MarkovianCC::update_delta(bool pkt_lost __attribute((unused)), double cur_r
     if (prev_delta_update_time == 0)
       delta = 1;
     if (pkt_lost && cur_intersend_time != 0 && prev_delta_update_time_loss + cur_rtt < cur_time) {
-      cout << delta << " " << cur_intersend_time << endl;
+      //cout << delta << " " << cur_intersend_time << endl;
       double median_rtt = 1 / (delta * cur_intersend_time);
       if (true || cur_rtt > median_rtt) // congestive loss
         delta *= 2;
@@ -119,7 +119,7 @@ void MarkovianCC::update_delta(bool pkt_lost __attribute((unused)), double cur_r
 	prev_delta_update_time = cur_time;
       }
     }
-    cout << "DU " << cur_time << " " << flow_id << " " << delta << endl;
+    //cout << "DU " << cur_time << " " << flow_id << " " << delta << endl;
     //delta = min(delta, 1.0);
     //delta = max(delta, 0.1);
   }
