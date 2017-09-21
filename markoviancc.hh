@@ -81,6 +81,7 @@ class MarkovianCC : public CCC {
   enum {DEFAULT_MODE, LOSS_SENSITIVE_MODE, TCP_MODE} operation_mode;
   bool do_slow_start;
   bool keep_ext_min_rtt;
+  double default_delta;
   int flow_length;
   double delay_bound;
   double prev_delta_update_time;
@@ -105,11 +106,7 @@ class MarkovianCC : public CCC {
   static int flow_id_counter;
   int flow_id;
   
-#ifdef SIMULATION_MODE
   Time cur_tick;
-#else
-  std::chrono::high_resolution_clock::time_point start_time_point;
-#endif
   
   double current_timestamp();
   
@@ -152,6 +149,7 @@ public:
       operation_mode(DEFAULT_MODE),
       do_slow_start(false),
       keep_ext_min_rtt(false),
+      default_delta(0.5),
       flow_length(),
       delay_bound(),
       prev_delta_update_time(),
@@ -170,11 +168,7 @@ public:
       slow_start_threshold(),
       rtt_var(alpha_rtt_long_avg),
       flow_id(++ flow_id_counter),
-#ifdef SIMULATION_MODE
       cur_tick()
-#else
-      start_time_point()
-#endif
   {}
   
   // callback functions for packet events
@@ -189,9 +183,9 @@ public:
   
   bool send_tiny_pkt() {return false;}//num_pkts_acked < num_probe_pkts-1;}
   
-#ifdef SIMULATION_MODE
+  //#ifdef SIMULATION_MODE
   void set_timestamp(double s_cur_tick) {cur_tick = s_cur_tick;}
-#endif
+  //#endif
   
   void set_flow_length(int s_flow_length) {flow_length = s_flow_length;}
   void set_min_rtt(double x) {

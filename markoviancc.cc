@@ -13,16 +13,7 @@ using namespace std;
 int MarkovianCC::flow_id_counter = 0;
 
 double MarkovianCC::current_timestamp( void ){
-#ifdef SIMULATION_MODE
   return cur_tick;
-
-#else
-  using namespace std::chrono;
-  high_resolution_clock::time_point cur_time_point = \
-    high_resolution_clock::now();
-  return duration_cast<duration<double>>(cur_time_point - start_time_point)\
-    .count()*1000;
-#endif
 }
 
 void MarkovianCC::init() {
@@ -88,12 +79,6 @@ void MarkovianCC::init() {
   slow_start = true;
   slow_start_threshold = 1e10;
   rtt_var.reset();
-
-#ifdef SIMULATION_MODE
-  cur_tick = 0;
-#else
-  start_time_point = std::chrono::high_resolution_clock::now();
-#endif
 }
 
 void MarkovianCC::update_delta(bool pkt_lost __attribute((unused)), double cur_rtt __attribute((unused))) {
@@ -112,7 +97,7 @@ void MarkovianCC::update_delta(bool pkt_lost __attribute((unused)), double cur_r
       if (operation_mode == LOSS_SENSITIVE_MODE)
         cout << "Switched to default mode." << endl;
       operation_mode = DEFAULT_MODE;
-      delta = 1;
+      delta = default_delta;
     }
   }
   
@@ -214,7 +199,6 @@ void MarkovianCC::update_intersend_time() {
   _the_window = max(2.0, _the_window);
   cur_intersend_time = rtt_ewma / _the_window;
   _intersend_time = randomize_intersend(cur_intersend_time);
-  cout << cur_time << " " << _the_window << " " << target_window << " " << rtt_ewma << " " << min_rtt << " " << update_amt << endl;
 }
 
 void MarkovianCC::onACK(int ack, 
@@ -222,7 +206,6 @@ void MarkovianCC::onACK(int ack,
 			double sent_time, int delta_class __attribute((unused))) {
   int seq_num = ack - 1;
   double cur_time = current_timestamp();
-
   assert(cur_time > sent_time);
 
   if (rtt_acked == 0 || num_pkts_acked < num_probe_pkts - 1)
@@ -342,8 +325,14 @@ void MarkovianCC::interpret_config_str(string config) {
     config = config.substr(17, string::npos);
     cout << "Will keep external Min. RTT" << endl;
   }
-  
-  delta = 1.0; // If delta is not set in time, we don't want it to be 0
+  // if (config.substr(0, 14) == "default_delta:") {
+  //   keep_ext_min_rtt = true;
+  //   default_delta = atof(config.substr(14, string::npos).c_str());
+  //   default_delta = config.substr(14, string::npos);
+  //   cout << "Will use a default delta of " << default_delta << endl;
+  // }
+
+  delta = 1; // If delta is not set in time, we don't want it to be 0
   if (config.substr(0, 15) == "constant_delta:") {
     utility_mode = CONSTANT_DELTA;
     delta = atof(config.substr(15, string::npos).c_str());
@@ -391,9 +380,11 @@ void MarkovianCC::interpret_config_str(string config) {
     behavior = stof(config.substr(15, string::npos).c_str());
     cout << "Exhibiting constant behavior " << behavior << endl;
   }
-  else if (config.substr(0, 14) == "auto") {
+  else if (config.substr(0, 5) == "auto:") {
     utility_mode = AUTO_MODE;
-    cout << "Using Automatic Mode" << endl;
+    default_delta = atof(config.substr(5, string::npos).c_str());
+    delta = default_delta;
+    cout << "Using Automatic Mode with default delta = " << default_delta << endl;
   }
   else {
     utility_mode = CONSTANT_DELTA;
